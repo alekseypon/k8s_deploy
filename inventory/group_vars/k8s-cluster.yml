@@ -38,16 +38,16 @@ kube_log_level: 2
 # Optionally add groups for user
 kube_api_pwd: "{{ lookup('password', inventory_dir + '/credentials/kube_user.creds length=15 chars=ascii_letters,digits') }}"
 kube_users:
-  kube:
+  k8s_admin:
     pass: "{{kube_api_pwd}}"
-    role: admin
+    role: cluster-admin
     groups:
       - system:masters
 
 ## It is possible to activate / deactivate selected authentication methods (basic auth, static token auth)
 #kube_oidc_auth: false
-#kube_basic_auth: false
-#kube_token_auth: false
+kube_basic_auth: true
+kube_token_auth: true
 
 
 ## Variables for OpenID Connect Configuration https://kubernetes.io/docs/admin/authentication/
@@ -65,7 +65,7 @@ kube_users:
 
 # Choose network plugin (cilium, calico, contiv, weave or flannel)
 # Can also be set to 'cloud', which lets the cloud provider setup appropriate routing
-kube_network_plugin: calico
+kube_network_plugin: flannel
 
 # weave's network password for encryption
 # if null then no network encryption
@@ -120,6 +120,7 @@ kube_encrypt_secret_data: false
 # DNS configuration.
 # Kubernetes cluster name, also will be used as DNS domain
 cluster_name: k8s.expllore.me.uk
+domain_name: k8s.expllore.me.uk
 # Subdomains of DNS domain to be resolved via /etc/resolv.conf for hostnet pods
 ndots: 2
 # Can be dnsmasq_kubedns, kubedns, coredns, coredns_dual, manual or none
@@ -251,4 +252,3 @@ kubeconfig_localhost: true
 ## See https://github.com/kubernetes-incubator/kubespray/issues/2141
 ## Set this variable to true to get rid of this issue
 volume_cross_zone_attachment: false
-
