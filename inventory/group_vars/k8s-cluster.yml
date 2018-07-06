@@ -170,10 +170,10 @@ k8s_image_pull_policy: IfNotPresent
 
 # Kubernetes dashboard
 # RBAC required. see docs/getting-started.md for access details.
-dashboard_enabled: true
+dashboard_enabled: false
 
 # Monitoring apps for k8s
-efk_enabled: true
+efk_enabled: false
 
 # Helm deployment
 helm_enabled: true
@@ -207,7 +207,7 @@ cephfs_provisioner_enabled: false
 # cephfs_provisioner_storage_class: cephfs
 
 # Nginx ingress controller deployment
-ingress_nginx_enabled: true
+ingress_nginx_enabled: false
 # ingress_nginx_host_network: false
 # ingress_nginx_namespace: "ingress-nginx"
 # ingress_nginx_insecure_port: 80
@@ -221,7 +221,7 @@ ingress_nginx_enabled: true
 #   53: "kube-system/kube-dns:53"
 
 # Cert manager deployment
-cert_manager_enabled: true
+cert_manager_enabled: false
 # cert_manager_namespace: "cert-manager"
 
 # Add Persistent Volumes Storage Class for corresponding cloud provider ( OpenStack is only supported now )

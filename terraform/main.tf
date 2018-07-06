@@ -259,6 +259,7 @@ resource aws_spot_instance_request "node" {
   availability_zone      = "${var.availability_zone}"
   wait_for_fulfillment   = true
   iam_instance_profile   = "${aws_iam_instance_profile.k8s_profile.name}"
+  associate_public_ip_address = false
 
   root_block_device {
     volume_size           = 30
@@ -269,6 +270,47 @@ resource aws_spot_instance_request "node" {
   tags {
     Name                              = "node-${count.index}"
     Role                              = "node"
+    "kubernetes.io/cluster/openshift" = "owned"
+  }
+
+  connection {
+    user        = "ubuntu"
+    private_key = "${file(var.private_key_path)}"
+    host        = "${self.public_ip}"
+  }
+
+  provisioner "file" {
+    source      = "provision.sh"
+    destination = "/home/ubuntu/provision.sh"
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "bash /home/ubuntu/provision.sh ${var.access_key} ${var.secret_key} ${var.region} ${self.id} ${self.spot_instance_id}",
+    ]
+  }
+}
+
+resource aws_spot_instance_request "bastion" {
+  depends_on             = ["aws_iam_instance_profile.k8s_profile"]
+  ami                    = "${data.aws_ami.ubuntu.id}"
+  instance_type          = "t2.small"
+  vpc_security_group_ids = ["${aws_security_group.sg_ec2_common.id}"]
+  key_name               = "${var.key_name}"
+  spot_price             = "0.02"
+  availability_zone      = "${var.availability_zone}"
+  wait_for_fulfillment   = true
+  iam_instance_profile   = "${aws_iam_instance_profile.k8s_profile.name}"
+
+  root_block_device {
+    volume_size           = 10
+    volume_type           = "gp2"
+    delete_on_termination = true
+  }
+
+  tags {
+    Name                              = "bastion-${count.index}"
+    Role                              = "bastion"
     "kubernetes.io/cluster/openshift" = "owned"
   }
 
