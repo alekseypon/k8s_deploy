@@ -13,4 +13,3 @@ output "node-public-ip" {
 output "node-private-ip" {
   value = "${aws_spot_instance_request.node.*.private_ip}"
 }
-
