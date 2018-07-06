@@ -292,6 +292,7 @@ resource aws_spot_instance_request "node" {
 }
 
 resource aws_spot_instance_request "bastion" {
+  count                       = 0
   depends_on                  = ["aws_iam_instance_profile.k8s_profile"]
   ami                         = "${data.aws_ami.ubuntu.id}"
   instance_type               = "t2.small"
