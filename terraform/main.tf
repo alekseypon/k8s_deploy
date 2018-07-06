@@ -20,16 +20,19 @@ data "aws_ami" "centos" {
 }
 
 data "aws_ami" "ubuntu" {
-    most_recent = true
-    filter {
-        name   = "name"
-        values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
-    }
-    filter {
-        name   = "virtualization-type"
-        values = ["hvm"]
-    }
-    owners = ["099720109477"] # Canonical
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-xenial-16.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
 }
 
 resource aws_security_group "sg_ec2_common" {
@@ -193,16 +196,17 @@ EOF
 }
 
 resource aws_spot_instance_request "master" {
-  depends_on             = ["aws_iam_instance_profile.k8s_profile"]
-  count                  = "${var.master_number}"
-  ami                    = "${data.aws_ami.ubuntu.id}"
-  instance_type          = "${var.master_ec2_type}"
-  vpc_security_group_ids = ["${aws_security_group.sg_ec2_common.id}", "${aws_security_group.sg_ec2_master.id}"]
-  key_name               = "${var.key_name}"
-  spot_price             = "${var.master_spot_price}"
-  availability_zone      = "${var.availability_zone}"
-  wait_for_fulfillment   = true
-  iam_instance_profile   = "${aws_iam_instance_profile.k8s_profile.name}"
+  depends_on                  = ["aws_iam_instance_profile.k8s_profile"]
+  count                       = "${var.master_number}"
+  ami                         = "${data.aws_ami.ubuntu.id}"
+  instance_type               = "${var.master_ec2_type}"
+  vpc_security_group_ids      = ["${aws_security_group.sg_ec2_common.id}", "${aws_security_group.sg_ec2_master.id}"]
+  key_name                    = "${var.key_name}"
+  spot_price                  = "${var.master_spot_price}"
+  availability_zone           = "${var.availability_zone}"
+  wait_for_fulfillment        = true
+  iam_instance_profile        = "${aws_iam_instance_profile.k8s_profile.name}"
+  associate_public_ip_address = true
 
   root_block_device {
     volume_size           = 50
@@ -217,30 +221,27 @@ resource aws_spot_instance_request "master" {
     delete_on_termination = true
   }
 
-#  ebs_block_device {
-#    device_name           = "/dev/xvdc"
-#    volume_size           = 100
-#    volume_type           = "gp2"
-#    delete_on_termination = true
-#  }
+  #  ebs_block_device {
+  #    device_name           = "/dev/xvdc"
+  #    volume_size           = 100
+  #    volume_type           = "gp2"
+  #    delete_on_termination = true
+  #  }
 
   tags {
     Name                              = "master-${count.index}"
     Role                              = "master"
     "kubernetes.io/cluster/openshift" = "owned"
   }
-
   connection {
     user        = "ubuntu"
     private_key = "${file(var.private_key_path)}"
     host        = "${self.public_ip}"
   }
-
   provisioner "file" {
     source      = "provision.sh"
     destination = "/home/ubuntu/provision.sh"
   }
-
   provisioner "remote-exec" {
     inline = [
       "bash /home/ubuntu/provision.sh ${var.access_key} ${var.secret_key} ${var.region} ${self.id} ${self.spot_instance_id}",
@@ -259,7 +260,6 @@ resource aws_spot_instance_request "node" {
   availability_zone      = "${var.availability_zone}"
   wait_for_fulfillment   = true
   iam_instance_profile   = "${aws_iam_instance_profile.k8s_profile.name}"
-  associate_public_ip_address = false
 
   root_block_device {
     volume_size           = 30
@@ -292,15 +292,16 @@ resource aws_spot_instance_request "node" {
 }
 
 resource aws_spot_instance_request "bastion" {
-  depends_on             = ["aws_iam_instance_profile.k8s_profile"]
-  ami                    = "${data.aws_ami.ubuntu.id}"
-  instance_type          = "t2.small"
-  vpc_security_group_ids = ["${aws_security_group.sg_ec2_common.id}"]
-  key_name               = "${var.key_name}"
-  spot_price             = "0.02"
-  availability_zone      = "${var.availability_zone}"
-  wait_for_fulfillment   = true
-  iam_instance_profile   = "${aws_iam_instance_profile.k8s_profile.name}"
+  depends_on                  = ["aws_iam_instance_profile.k8s_profile"]
+  ami                         = "${data.aws_ami.ubuntu.id}"
+  instance_type               = "t2.small"
+  vpc_security_group_ids      = ["${aws_security_group.sg_ec2_common.id}"]
+  key_name                    = "${var.key_name}"
+  spot_price                  = "0.02"
+  availability_zone           = "${var.availability_zone}"
+  wait_for_fulfillment        = true
+  iam_instance_profile        = "${aws_iam_instance_profile.k8s_profile.name}"
+  associate_public_ip_address = true
 
   root_block_device {
     volume_size           = 10
