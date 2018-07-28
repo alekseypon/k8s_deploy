@@ -1,0 +1,21 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: keycloak-idp-prod
+  namespace: kube-system
+spec:
+  secretName: certificate-prod-keycloak-idp
+  dnsNames:
+  - idp.k8s.expllore.me.uk
+  acme:
+    config:
+    - http01:
+        ingressClass: nginx
+      domains:
+      - idp.k8s.expllore.me.uk
+  issuerRef:
+    name: letsencrypt-prod
+    # We can reference ClusterIssuers by changing the kind here.
+    # The default value is Issuer (i.e. a locally namespaced Issuer)
+    kind: ClusterIssuer
+

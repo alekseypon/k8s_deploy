@@ -1,0 +1,13 @@
+---
+
+persistence:
+  enabled: true
+  storageClass: "-"
+  size: 100Gi
+
+storageClass:
+  defaultClass: true
+
+nodeSelector:
+  kubernetes.io/hostname: 172.31.22.223
+

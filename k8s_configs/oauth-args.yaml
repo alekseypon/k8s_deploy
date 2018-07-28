@@ -1,0 +1,6 @@
+---
+
+extraArgs:
+  provider: github
+  email-domain: evry.com
+

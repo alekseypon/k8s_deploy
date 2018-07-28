@@ -1,0 +1,18 @@
+---
+keycloak:
+  ingress:
+    enabled: true
+    hosts:
+    - idp.k8s.expllore.me.uk
+    tls:
+    - hosts:
+      - idp.k8s.expllore.me.uk
+      secretName: certificate-prod-keycloak-idp
+  persistence:
+    deployPostgres: true
+    dbVendor: postgres
+
+postgresql:
+  persistence:
+    enabled: true
+

@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kubernetes-dashboard-prod
+  namespace: kube-system
+  labels:
+    k8s-app: kubernetes-dashboard
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/auth-signin: https://$host/oauth2/start?rd=$request_uri
+    nginx.ingress.kubernetes.io/auth-url: https://$host/oauth2/auth
+    nginx.ingress.kubernetes.io/secure-backends: "true"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+spec:
+  tls:
+  - hosts:
+    - dashboard.k8s.expllore.me.uk
+    secretName: certificate-prod-dashboard
+  rules:
+  - host: dashboard.k8s.expllore.me.uk
+    http:
+      paths:
+      - backend:
+          serviceName: k8s-dashboard-kubernetes-dashboard
+          servicePort: 443
